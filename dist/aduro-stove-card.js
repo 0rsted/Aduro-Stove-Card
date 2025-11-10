@@ -45,19 +45,25 @@ class AduroStoveCard extends HTMLElement {
           width: 24px;
           height: 24px;
           color: var(--primary-color);
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         .hidden {
           display: none;
         }
-        .pellet-level {
+        .pellet-section {
           margin-bottom: 16px;
         }
         .pellet-bar {
-          height: 24px;
+          height: 32px;
           background: var(--divider-color);
-          border-radius: 12px;
+          border-radius: 16px;
           overflow: hidden;
           position: relative;
+          margin-top: 8px;
         }
         .pellet-fill {
           height: 100%;
@@ -67,8 +73,11 @@ class AduroStoveCard extends HTMLElement {
           align-items: center;
           justify-content: center;
           color: white;
-          font-weight: 500;
-          font-size: 12px;
+          font-weight: 600;
+          font-size: 14px;
+        }
+        .pellet-fill.low {
+          background: linear-gradient(90deg, #f44336, #ff9800);
         }
         .controls-grid {
           display: grid;
@@ -82,22 +91,27 @@ class AduroStoveCard extends HTMLElement {
           gap: 8px;
         }
         .control-label {
-          font-size: 14px;
+          font-size: 13px;
           color: var(--secondary-text-color);
           font-weight: 500;
         }
-        .control-input {
-          padding: 8px 12px;
+        .control-input, .control-select {
+          padding: 10px 12px;
           border: 1px solid var(--divider-color);
-          border-radius: 4px;
+          border-radius: 8px;
           background: var(--card-background-color);
           color: var(--primary-text-color);
           font-size: 14px;
+          transition: border-color 0.2s;
+        }
+        .control-input:focus, .control-select:focus {
+          outline: none;
+          border-color: var(--primary-color);
         }
         .toggle-button {
-          padding: 8px 16px;
+          padding: 10px 16px;
           border: none;
-          border-radius: 4px;
+          border-radius: 8px;
           cursor: pointer;
           font-size: 14px;
           font-weight: 500;
@@ -113,19 +127,19 @@ class AduroStoveCard extends HTMLElement {
         }
         .action-buttons {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
           gap: 8px;
         }
         .action-button {
           padding: 12px;
           border: none;
-          border-radius: 4px;
+          border-radius: 8px;
           background: var(--primary-color);
           color: white;
           cursor: pointer;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 500;
-          transition: background 0.2s;
+          transition: opacity 0.2s;
         }
         .action-button:hover {
           opacity: 0.9;
@@ -142,7 +156,7 @@ class AduroStoveCard extends HTMLElement {
           </div>
         </div>
         
-        <div class="pellet-level">
+        <div class="pellet-section">
           <div class="control-label">Pellet Level</div>
           <div class="pellet-bar">
             <div class="pellet-fill" id="pellet-fill">0%</div>
@@ -152,20 +166,17 @@ class AduroStoveCard extends HTMLElement {
         <div class="controls-grid">
           <div class="control-item">
             <label class="control-label">Power</label>
-            <button class="toggle-button" id="power-btn">OFF</button>
+            <button class="toggle-button off" id="power-btn">OFF</button>
           </div>
           
           <div class="control-item">
             <label class="control-label">Display Format</label>
-            <select class="control-input" id="display-format">
-              <option value="celsius">Celsius</option>
-              <option value="fahrenheit">Fahrenheit</option>
-            </select>
+            <div id="display-format-value" style="padding: 10px 12px; background: var(--divider-color); border-radius: 8px;">-</div>
           </div>
           
           <div class="control-item">
             <label class="control-label">Smoke Temperature</label>
-            <input type="number" class="control-input" id="smoke-temp" min="0" max="300" step="1">
+            <div id="smoke-temp-value" style="padding: 10px 12px; background: var(--divider-color); border-radius: 8px;">-</div>
           </div>
           
           <div class="control-item">
@@ -175,32 +186,28 @@ class AduroStoveCard extends HTMLElement {
           
           <div class="control-item">
             <label class="control-label">Target Temperature</label>
-            <input type="number" class="control-input" id="target-temp" min="0" max="30" step="0.5">
+            <input type="number" class="control-input" id="target-temp" min="5" max="30" step="0.5">
           </div>
           
           <div class="control-item">
             <label class="control-label">Toggle Mode</label>
-            <select class="control-input" id="toggle-mode">
-              <option value="pellet">Pellet</option>
-              <option value="wood">Wood</option>
-            </select>
+            <button class="action-button" id="toggle-mode-btn">Toggle Mode</button>
           </div>
           
           <div class="control-item">
             <label class="control-label">Auto Resume After Wood</label>
-            <button class="toggle-button" id="auto-resume-btn">OFF</button>
+            <button class="toggle-button off" id="auto-resume-btn">OFF</button>
           </div>
           
           <div class="control-item">
             <label class="control-label">Auto Shutdown Low Pellets</label>
-            <button class="toggle-button" id="auto-shutdown-btn">OFF</button>
+            <button class="toggle-button off" id="auto-shutdown-btn">OFF</button>
           </div>
         </div>
 
         <div class="action-buttons">
           <button class="action-button" id="clean-btn">Clean Stove</button>
           <button class="action-button" id="refill-btn">Refill Pellets</button>
-          <button class="action-button" id="reset-counter-btn">Reset Counter</button>
         </div>
       </div>
     `;
@@ -209,107 +216,98 @@ class AduroStoveCard extends HTMLElement {
     this._setupEventListeners();
   }
 
+  _getEntityId(suffix) {
+    // Entity naming pattern: sensor.aduro_h1_[suffix] or switch.aduro_h1_[suffix]
+    const baseEntity = this._config.entity;
+    return `${baseEntity}_${suffix}`;
+  }
+
   _setupEventListeners() {
-    // Power button
+    // Power switch
     this.querySelector('#power-btn').addEventListener('click', () => {
-      this._callService('toggle', { entity_id: `${this._config.entity}.power` });
-    });
-
-    // Display format
-    this.querySelector('#display-format').addEventListener('change', (e) => {
-      this._callService('select_option', { 
-        entity_id: `${this._config.entity}.display_format`,
-        option: e.target.value 
-      });
-    });
-
-    // Smoke temperature
-    this.querySelector('#smoke-temp').addEventListener('change', (e) => {
-      this._callService('set_value', { 
-        entity_id: `${this._config.entity}.smoke_temperature`,
-        value: e.target.value 
-      });
+      const entityId = this._getEntityId('power');
+      this._hass.callService('switch', 'toggle', { entity_id: entityId });
     });
 
     // Heat level
     this.querySelector('#heat-level').addEventListener('change', (e) => {
-      this._callService('set_value', { 
-        entity_id: `${this._config.entity}.heat_level`,
-        value: e.target.value 
+      const entityId = this._getEntityId('heatlevel');
+      this._hass.callService('number', 'set_value', { 
+        entity_id: entityId,
+        value: parseFloat(e.target.value)
       });
     });
 
     // Target temperature
     this.querySelector('#target-temp').addEventListener('change', (e) => {
-      this._callService('set_value', { 
-        entity_id: `${this._config.entity}.target_temperature`,
-        value: e.target.value 
+      const entityId = this._getEntityId('temperature');
+      this._hass.callService('number', 'set_value', { 
+        entity_id: entityId,
+        value: parseFloat(e.target.value)
       });
     });
 
-    // Toggle mode
-    this.querySelector('#toggle-mode').addEventListener('change', (e) => {
-      this._callService('select_option', { 
-        entity_id: `${this._config.entity}.toggle_mode`,
-        option: e.target.value 
-      });
+    // Toggle mode button
+    this.querySelector('#toggle-mode-btn').addEventListener('click', () => {
+      const entityId = this._getEntityId('toggle_mode');
+      this._hass.callService('button', 'press', { entity_id: entityId });
     });
 
-    // Auto resume button
+    // Auto resume switch
     this.querySelector('#auto-resume-btn').addEventListener('click', () => {
-      this._callService('toggle', { entity_id: `${this._config.entity}.auto_resume` });
+      const entityId = this._getEntityId('auto_resume_wood');
+      this._hass.callService('switch', 'toggle', { entity_id: entityId });
     });
 
-    // Auto shutdown button
+    // Auto shutdown switch
     this.querySelector('#auto-shutdown-btn').addEventListener('click', () => {
-      this._callService('toggle', { entity_id: `${this._config.entity}.auto_shutdown` });
+      const entityId = this._getEntityId('auto_shutdown');
+      this._hass.callService('switch', 'toggle', { entity_id: entityId });
     });
 
-    // Action buttons
+    // Clean stove button
     this.querySelector('#clean-btn').addEventListener('click', () => {
-      this._callService('button.press', { entity_id: `${this._config.entity}.clean_stove` });
+      const entityId = this._getEntityId('clean_stove');
+      this._hass.callService('button', 'press', { entity_id: entityId });
     });
 
+    // Refill pellets button
     this.querySelector('#refill-btn').addEventListener('click', () => {
-      this._callService('button.press', { entity_id: `${this._config.entity}.refill_pellets` });
+      const entityId = this._getEntityId('refill_pellets');
+      this._hass.callService('button', 'press', { entity_id: entityId });
     });
-
-    this.querySelector('#reset-counter-btn').addEventListener('click', () => {
-      this._callService('button.press', { entity_id: `${this._config.entity}.refill_counter` });
-    });
-  }
-
-  _callService(service, data) {
-    const [domain, serviceAction] = service.includes('.') ? service.split('.') : ['switch', service];
-    this._hass.callService(domain, serviceAction, data);
   }
 
   _updateContent() {
     if (!this._hass || !this._config) return;
 
-    const entity = this._hass.states[this._config.entity];
-    if (!entity) return;
-
     // Update change in progress icon
+    const changeInProgressEntity = this._hass.states[this._getEntityId('change_in_progress')];
     const changeIcon = this.querySelector('#change-icon');
-    const changeInProgress = this._hass.states[`${this._config.entity}.change_in_progress`];
-    if (changeInProgress && changeInProgress.state === 'on') {
+    if (changeInProgressEntity && changeInProgressEntity.state === 'true') {
       changeIcon.classList.remove('hidden');
     } else {
       changeIcon.classList.add('hidden');
     }
 
     // Update pellet percentage
-    const pelletEntity = this._hass.states[`${this._config.entity}.pellet_percentage`];
+    const pelletEntity = this._hass.states[this._getEntityId('pellet_percentage')];
     if (pelletEntity) {
       const percentage = parseInt(pelletEntity.state) || 0;
       const pelletFill = this.querySelector('#pellet-fill');
       pelletFill.style.width = `${percentage}%`;
       pelletFill.textContent = `${percentage}%`;
+      
+      // Change color if low
+      if (percentage <= 20) {
+        pelletFill.classList.add('low');
+      } else {
+        pelletFill.classList.remove('low');
+      }
     }
 
-    // Update power button
-    const powerEntity = this._hass.states[`${this._config.entity}.power`];
+    // Update power switch
+    const powerEntity = this._hass.states[this._getEntityId('power')];
     const powerBtn = this.querySelector('#power-btn');
     if (powerEntity && powerEntity.state === 'on') {
       powerBtn.classList.add('on');
@@ -321,8 +319,32 @@ class AduroStoveCard extends HTMLElement {
       powerBtn.textContent = 'OFF';
     }
 
-    // Update auto resume button
-    const autoResumeEntity = this._hass.states[`${this._config.entity}.auto_resume`];
+    // Update display format (read-only display)
+    const displayFormatEntity = this._hass.states[this._getEntityId('display_format')];
+    if (displayFormatEntity) {
+      this.querySelector('#display-format-value').textContent = displayFormatEntity.state || '-';
+    }
+
+    // Update smoke temperature (read-only display)
+    const smokeTempEntity = this._hass.states[this._getEntityId('smoke_temp')];
+    if (smokeTempEntity) {
+      this.querySelector('#smoke-temp-value').textContent = smokeTempEntity.state ? `${smokeTempEntity.state}°C` : '-';
+    }
+
+    // Update heat level input
+    const heatLevelEntity = this._hass.states[this._getEntityId('heatlevel')];
+    if (heatLevelEntity) {
+      this.querySelector('#heat-level').value = heatLevelEntity.state;
+    }
+
+    // Update target temperature input
+    const targetTempEntity = this._hass.states[this._getEntityId('temperature')];
+    if (targetTempEntity) {
+      this.querySelector('#target-temp').value = targetTempEntity.state;
+    }
+
+    // Update auto resume switch
+    const autoResumeEntity = this._hass.states[this._getEntityId('auto_resume_wood')];
     const autoResumeBtn = this.querySelector('#auto-resume-btn');
     if (autoResumeEntity && autoResumeEntity.state === 'on') {
       autoResumeBtn.classList.add('on');
@@ -334,8 +356,8 @@ class AduroStoveCard extends HTMLElement {
       autoResumeBtn.textContent = 'OFF';
     }
 
-    // Update auto shutdown button
-    const autoShutdownEntity = this._hass.states[`${this._config.entity}.auto_shutdown`];
+    // Update auto shutdown switch
+    const autoShutdownEntity = this._hass.states[this._getEntityId('auto_shutdown')];
     const autoShutdownBtn = this.querySelector('#auto-shutdown-btn');
     if (autoShutdownEntity && autoShutdownEntity.state === 'on') {
       autoShutdownBtn.classList.add('on');
@@ -346,22 +368,6 @@ class AduroStoveCard extends HTMLElement {
       autoShutdownBtn.classList.remove('on');
       autoShutdownBtn.textContent = 'OFF';
     }
-
-    // Update input values
-    const smokeTemp = this._hass.states[`${this._config.entity}.smoke_temperature`];
-    if (smokeTemp) this.querySelector('#smoke-temp').value = smokeTemp.state;
-
-    const heatLevel = this._hass.states[`${this._config.entity}.heat_level`];
-    if (heatLevel) this.querySelector('#heat-level').value = heatLevel.state;
-
-    const targetTemp = this._hass.states[`${this._config.entity}.target_temperature`];
-    if (targetTemp) this.querySelector('#target-temp').value = targetTemp.state;
-
-    const displayFormat = this._hass.states[`${this._config.entity}.display_format`];
-    if (displayFormat) this.querySelector('#display-format').value = displayFormat.state;
-
-    const toggleMode = this._hass.states[`${this._config.entity}.toggle_mode`];
-    if (toggleMode) this.querySelector('#toggle-mode').value = toggleMode.state;
   }
 
   getCardSize() {
