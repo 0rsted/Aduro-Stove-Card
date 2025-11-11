@@ -493,7 +493,7 @@ class AduroStoveCard extends HTMLElement {
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
         const currentValue = parseFloat(currentEntity.state);
-        const newValue = Math.min(currentValue + 1, 5);
+        const newValue = Math.min(currentValue + 1, 3);
         this._hass.callService('number', 'set_value', { 
           entity_id: entityId,
           value: newValue
@@ -520,7 +520,7 @@ class AduroStoveCard extends HTMLElement {
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
         const currentValue = parseFloat(currentEntity.state);
-        const newValue = Math.min(currentValue + 0.5, 30);
+        const newValue = Math.min(currentValue + 1, 35);
         this._hass.callService('number', 'set_value', { 
           entity_id: entityId,
           value: newValue
@@ -533,7 +533,7 @@ class AduroStoveCard extends HTMLElement {
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
         const currentValue = parseFloat(currentEntity.state);
-        const newValue = Math.max(currentValue - 0.5, 5);
+        const newValue = Math.max(currentValue - 1, 5);
         this._hass.callService('number', 'set_value', { 
           entity_id: entityId,
           value: newValue
