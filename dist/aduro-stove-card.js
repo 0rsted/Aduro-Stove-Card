@@ -569,7 +569,7 @@ class AduroStoveCard extends HTMLElement {
     
     console.log('Looking for entities matching:', baseName);
     const matchingEntities = Object.keys(this._hass.states).filter(e => e.includes(baseName));
-    console.log('Found matching entities:', matchingEntities.slice(0, 10)); // Show first 10
+    console.log('All matching entities:', matchingEntities); // Show all
 
     // Update status displays
     const statusMainEntity = this._hass.states[this._getEntityId('status_main')];
