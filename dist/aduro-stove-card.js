@@ -13,6 +13,7 @@ class AduroStoveCard extends HTMLElement {
       throw new Error('Please define an entity');
     }
     this._config = config;
+    console.log('Card configured with entity:', config.entity);
   }
 
   _initialize() {
@@ -560,6 +561,15 @@ class AduroStoveCard extends HTMLElement {
 
   _updateContent() {
     if (!this._hass || !this._config) return;
+
+    // Debug: Log all available entities that match our pattern
+    const baseEntity = this._config.entity;
+    const parts = baseEntity.split('.');
+    const baseName = parts.length > 1 ? parts[1] : parts[0];
+    
+    console.log('Looking for entities matching:', baseName);
+    const matchingEntities = Object.keys(this._hass.states).filter(e => e.includes(baseName));
+    console.log('Found matching entities:', matchingEntities.slice(0, 10)); // Show first 10
 
     // Update status displays
     const statusMainEntity = this._hass.states[this._getEntityId('status_main')];
