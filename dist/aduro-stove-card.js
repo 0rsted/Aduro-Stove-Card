@@ -447,19 +447,47 @@ class AduroStoveCard extends HTMLElement {
     const parts = baseEntity.split('.');
     const baseName = parts.length > 1 ? parts[1] : parts[0];
     
-    // Determine domain based on suffix if not provided
-    if (!domain) {
-      if (['power', 'auto_shutdown', 'auto_resume_wood'].includes(suffix)) {
-        domain = 'switch';
-      } else if (['heatlevel', 'temperature', 'pellet_capacity', 'notification_level', 'shutdown_level'].includes(suffix)) {
-        domain = 'number';
-      } else if (['toggle_mode', 'refill_pellets', 'clean_stove', 'resume_after_wood', 'force_auger'].includes(suffix)) {
-        domain = 'button';
-      } else {
-        domain = 'sensor';
-      }
+    // Map internal names to actual entity names
+    const entityMap = {
+      // Switches
+      'power': 'switch.power',
+      'auto_shutdown': 'switch.auto_shutdown_at_low_pellets',
+      'auto_resume_wood': 'switch.auto_resume_after_wood_mode',
+      
+      // Numbers
+      'heatlevel': 'number.heat_level',
+      'temperature': 'number.target_temperature',
+      'pellet_capacity': 'number.pellet_capacity',
+      'notification_level': 'number.low_pellet_notification_level',
+      'shutdown_level': 'number.auto_shutdown_pellet_level',
+      
+      // Buttons
+      'toggle_mode': 'button.toggle_mode',
+      'refill_pellets': 'button.refill_pellets',
+      'clean_stove': 'button.clean_stove',
+      'resume_after_wood': 'button.resume_after_wood_mode',
+      'force_auger': 'button.force_auger',
+      
+      // Sensors
+      'status_main': 'sensor.status_main',
+      'status_sub': 'sensor.status_sub',
+      'change_in_progress': 'sensor.change_in_progress',
+      'display_format': 'sensor.display_format',
+      'smoke_temp': 'sensor.smoke_temperature',
+      'pellet_percentage': 'sensor.pellet_percentage',
+      'refill_counter': 'sensor.refill_counter',
+    };
+    
+    const mapped = entityMap[suffix];
+    if (mapped) {
+      const [mappedDomain, mappedName] = mapped.split('.');
+      return `${mappedDomain}.${baseName}_${mappedName}`;
     }
     
+    // Fallback for unmapped entities
+    if (!domain) {
+      domain = 'sensor';
+    }
     return `${domain}.${baseName}_${suffix}`;
   }
 
