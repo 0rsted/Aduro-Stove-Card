@@ -1,4 +1,9 @@
 class AduroStoveCard extends HTMLElement {
+  constructor() {
+    super();
+    this._pendingTempValue = null;
+  }
+
   set hass(hass) {
     if (!this._initialized) {
       this._initialize();
@@ -555,10 +560,22 @@ class AduroStoveCard extends HTMLElement {
       if (currentEntity) {
         const currentValue = parseFloat(currentEntity.state);
         const newValue = Math.min(currentValue + 1, 35);
+        
+        // Update display immediately
+        this._pendingTempValue = newValue;
+        this.querySelector('#temp-value').textContent = `${newValue}°C`;
+        
+        // Send command
         this._hass.callService('number', 'set_value', { 
           entity_id: entityId,
           value: newValue
         });
+        
+        // Clear pending value after 5 seconds
+        setTimeout(() => {
+          this._pendingTempValue = null;
+          this._updateContent();
+        }, 5000);
       }
     });
 
@@ -568,10 +585,22 @@ class AduroStoveCard extends HTMLElement {
       if (currentEntity) {
         const currentValue = parseFloat(currentEntity.state);
         const newValue = Math.max(currentValue - 1, 5);
+        
+        // Update display immediately
+        this._pendingTempValue = newValue;
+        this.querySelector('#temp-value').textContent = `${newValue}°C`;
+        
+        // Send command
         this._hass.callService('number', 'set_value', { 
           entity_id: entityId,
           value: newValue
         });
+        
+        // Clear pending value after 5 seconds
+        setTimeout(() => {
+          this._pendingTempValue = null;
+          this._updateContent();
+        }, 5000);
       }
     });
 
@@ -706,7 +735,8 @@ class AduroStoveCard extends HTMLElement {
     // Update temperature
     const tempEntity = this._hass.states[this._getEntityId('temperature')];
     if (tempEntity) {
-      const temp = parseFloat(tempEntity.state);
+      // Use pending value if available, otherwise use actual value
+      const temp = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(tempEntity.state);
       this.querySelector('#temp-value').textContent = `${temp}°C`;
     }
   }
