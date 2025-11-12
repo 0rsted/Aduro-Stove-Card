@@ -558,7 +558,8 @@ class AduroStoveCard extends HTMLElement {
       const entityId = this._getEntityId('temperature');
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
-        const currentValue = parseFloat(currentEntity.state);
+        // Use pending value if available, otherwise use actual value
+        const currentValue = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(currentEntity.state);
         const newValue = Math.min(currentValue + 1, 35);
         
         // Update display immediately
@@ -572,7 +573,8 @@ class AduroStoveCard extends HTMLElement {
         });
         
         // Clear pending value after 5 seconds
-        setTimeout(() => {
+        clearTimeout(this._tempTimeout);
+        this._tempTimeout = setTimeout(() => {
           this._pendingTempValue = null;
           this._updateContent();
         }, 5000);
@@ -583,7 +585,8 @@ class AduroStoveCard extends HTMLElement {
       const entityId = this._getEntityId('temperature');
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
-        const currentValue = parseFloat(currentEntity.state);
+        // Use pending value if available, otherwise use actual value
+        const currentValue = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(currentEntity.state);
         const newValue = Math.max(currentValue - 1, 5);
         
         // Update display immediately
@@ -597,7 +600,8 @@ class AduroStoveCard extends HTMLElement {
         });
         
         // Clear pending value after 5 seconds
-        setTimeout(() => {
+        clearTimeout(this._tempTimeout);
+        this._tempTimeout = setTimeout(() => {
           this._pendingTempValue = null;
           this._updateContent();
         }, 5000);
