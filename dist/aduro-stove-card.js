@@ -98,8 +98,8 @@ class AduroStoveCard extends HTMLElement {
           backdrop-filter: blur(10px);
           border-radius: 12px;
           padding: 12px 16px;
-          font-size: 20px;
-          font-weight: 600;
+          font-size: 14px;
+          font-weight: 500;
           color: #333;
           display: flex;
           align-items: center;
@@ -107,7 +107,7 @@ class AduroStoveCard extends HTMLElement {
         }
         
         .display-updating {
-          font-size: 12px;
+          font-size: 11px;
           opacity: 0.7;
         }
         
@@ -126,6 +126,7 @@ class AduroStoveCard extends HTMLElement {
           padding: 12px;
           text-align: center;
           border: 1px solid var(--divider-color);
+          position: relative;
         }
         
         .info-label {
@@ -140,10 +141,23 @@ class AduroStoveCard extends HTMLElement {
           color: var(--primary-text-color);
         }
         
+        .refill-badge {
+          position: absolute;
+          bottom: 8px;
+          right: 8px;
+          font-size: 10px;
+          color: var(--secondary-text-color);
+          background: var(--card-background-color);
+          padding: 2px 6px;
+          border-radius: 8px;
+          border: 1px solid var(--divider-color);
+        }
+        
         /* Pellet Section */
         .pellet-section {
           padding: 16px;
           background: var(--card-background-color);
+          display: none;
         }
         
         .pellet-header {
@@ -368,6 +382,7 @@ class AduroStoveCard extends HTMLElement {
           <div class="info-card">
             <div class="info-label">Pellets Left</div>
             <div class="info-value" id="pellet-percent">-</div>
+            <div class="refill-badge" id="refill-counter">0 refills</div>
           </div>
         </div>
         
@@ -696,7 +711,7 @@ class AduroStoveCard extends HTMLElement {
     const refillCounterEntity = this._hass.states[this._getEntityId('refill_counter')];
     if (refillCounterEntity) {
       const count = parseInt(refillCounterEntity.state) || 0;
-      this.querySelector('#refill-counter').textContent = `${count} refills since cleaning`;
+      this.querySelector('#refill-counter').textContent = `${count} refills`;
     }
 
     // Update power button
