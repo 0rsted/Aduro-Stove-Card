@@ -532,10 +532,6 @@ class AduroStoveCard extends HTMLElement {
 
     // Heat level controls
     const heatUpBtn = this.querySelector('#heat-up');
-    heatUpBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.currentTarget.blur();
-    });
     heatUpBtn.addEventListener('click', (e) => {
       const entityId = this._getEntityId('heatlevel');
       const currentEntity = this._hass.states[entityId];
@@ -547,14 +543,10 @@ class AduroStoveCard extends HTMLElement {
           value: newValue
         });
       }
-      e.currentTarget.blur();
+      setTimeout(() => e.currentTarget.blur(), 100);
     });
 
     const heatDownBtn = this.querySelector('#heat-down');
-    heatDownBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.currentTarget.blur();
-    });
     heatDownBtn.addEventListener('click', (e) => {
       const entityId = this._getEntityId('heatlevel');
       const currentEntity = this._hass.states[entityId];
@@ -566,15 +558,11 @@ class AduroStoveCard extends HTMLElement {
           value: newValue
         });
       }
-      e.currentTarget.blur();
+      setTimeout(() => e.currentTarget.blur(), 100);
     });
 
     // Temperature controls
     const tempUpBtn = this.querySelector('#temp-up');
-    tempUpBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.currentTarget.blur();
-    });
     tempUpBtn.addEventListener('click', (e) => {
       const entityId = this._getEntityId('temperature');
       const currentEntity = this._hass.states[entityId];
@@ -600,14 +588,10 @@ class AduroStoveCard extends HTMLElement {
           this._updateContent();
         }, 5000);
       }
-      e.currentTarget.blur();
+      setTimeout(() => e.currentTarget.blur(), 100);
     });
 
     const tempDownBtn = this.querySelector('#temp-down');
-    tempDownBtn.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      e.currentTarget.blur();
-    });
     tempDownBtn.addEventListener('click', (e) => {
       const entityId = this._getEntityId('temperature');
       const currentEntity = this._hass.states[entityId];
@@ -633,7 +617,7 @@ class AduroStoveCard extends HTMLElement {
           this._updateContent();
         }, 5000);
       }
-      e.currentTarget.blur();
+      setTimeout(() => e.currentTarget.blur(), 100);
     });
 
     // Action buttons
