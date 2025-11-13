@@ -275,29 +275,14 @@ class AduroStoveCard extends HTMLElement {
           font-size: 20px;
           font-weight: bold;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: transform 0.2s;
           display: flex;
           align-items: center;
           justify-content: center;
         }
         
-        .adjuster-btn:hover {
-          background: var(--primary-color);
-          color: var(--text-primary-color);
-          border-color: var(--primary-color);
-        }
-        
         .adjuster-btn:active {
           transform: scale(0.9);
-        }
-        
-        /* Prevent stuck hover state on mobile */
-        @media (hover: none) {
-          .adjuster-btn:hover {
-            background: var(--secondary-background-color);
-            color: var(--primary-text-color);
-            border-color: var(--divider-color);
-          }
         }
         
         .adjuster-display {
