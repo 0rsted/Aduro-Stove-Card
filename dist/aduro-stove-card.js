@@ -516,7 +516,16 @@ class AduroStoveCard extends HTMLElement {
     // Power button
     this.querySelector('#power-btn').addEventListener('click', () => {
       const entityId = this._getEntityId('power');
-      this._hass.callService('switch', 'toggle', { entity_id: entityId });
+      const powerEntity = this._hass.states[entityId];
+      const isOn = powerEntity && powerEntity.state === 'on';
+      
+      const message = isOn 
+        ? 'Are you sure you want to turn OFF the stove?' 
+        : 'Are you sure you want to turn ON the stove?';
+      
+      if (confirm(message)) {
+        this._hass.callService('switch', 'toggle', { entity_id: entityId });
+      }
     });
 
     // Toggle mode button
