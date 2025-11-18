@@ -153,10 +153,8 @@ class AduroStoveCard extends HTMLElement {
           border: 1px solid var(--divider-color);
         }
         
-        /* Pellet Section */
+        /* Pellet Section - Hidden */
         .pellet-section {
-          padding: 16px;
-          background: var(--card-background-color);
           display: none;
         }
         
