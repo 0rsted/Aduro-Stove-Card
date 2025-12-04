@@ -562,7 +562,7 @@ class AduroStoveCard extends HTMLElement {
 
       // Sensors
       status_main: "sensor.status",
-      status_sub: "sensor.status_Detail",
+      status_sub: "sensor.status_detail",
       change_in_progress: "sensor.change_in_progress",
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temperature",
