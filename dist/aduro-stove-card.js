@@ -561,12 +561,12 @@ class AduroStoveCard extends HTMLElement {
       force_auger: "button.force_auger",
 
       // Sensors
-      status_main: "sensor.status_main",
-      status_sub: "sensor.status_sub",
+      status_main: "sensor.status",
+      status_sub: "sensor.status_Detail",
       change_in_progress: "sensor.change_in_progress",
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temperature",
-      pellet_percentage: "sensor.pellet_percentage",
+      pellet_percentage: "sensor.pellets_percentage",
       refill_counter: "sensor.refill_counter",
     };
 
