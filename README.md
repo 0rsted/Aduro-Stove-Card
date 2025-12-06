@@ -27,7 +27,7 @@ A custom Lovelace card for controlling Aduro Hybrid Stoves in Home Assistant.
 2. Click the menu (three dots) in the top right
 3. Select "Custom repositories"
 4. Add this repository URL: `https://github.com/NewImproved/Aduro-Stove-Card`
-5. Select category: "Integration"
+5. Select category: "Dashboard"
 6. Click "Add"
 7. Search for "Aduro Stove Card" and install
 8. Restart Home Assistant
@@ -52,7 +52,8 @@ Add the card to your Lovelace dashboard:
 
 ```yaml
 type: custom:aduro-stove-card
-entity: sensor.aduro_h2
+entity: sensor.your_aduro_stove
+title: My Custom Title
 ```
 
 ### Configuration Options
