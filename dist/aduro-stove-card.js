@@ -251,20 +251,23 @@ class AduroStoveCard extends HTMLElement {
         .co-bar {
           position: absolute;
           height: 100%;
-          transition: width 0.3s ease;
+          transition: width 0.3s ease, left 0.3s ease;
         }
 
         .co-bar.green {
           background: #4caf50;
           left: 0;
+          z-index: 1;
         }
 
         .co-bar.yellow {
           background: #ffc107;
+          z-index: 2;
         }
 
         .co-bar.red {
           background: #f44336;
+          z-index: 3;
         }
 
         .co-values {
@@ -872,6 +875,10 @@ class AduroStoveCard extends HTMLElement {
     const coYellowEntity = this._hass.states[this._getEntityId("carbon_monoxide_yellow")];
     const coRedEntity = this._hass.states[this._getEntityId("carbon_monoxide_red")];
 
+    console.log("CO Entity:", coEntity ? coEntity.state : "not found");
+    console.log("CO Yellow Entity:", coYellowEntity ? coYellowEntity.state : "not found");
+    console.log("CO Red Entity:", coRedEntity ? coRedEntity.state : "not found");
+
     if (coEntity && coYellowEntity && coRedEntity) {
       const coValue = parseFloat(coEntity.state) || 200;
       const coYellowValue = parseFloat(coYellowEntity.state) || 800;
@@ -884,17 +891,25 @@ class AduroStoveCard extends HTMLElement {
       const yellowWidth = Math.min((coYellowValue / maxValue) * 100, 100);
       const redWidth = Math.min((coRedValue / maxValue) * 100, 100);
 
-      // Update bar widths
-      this.shadowRoot.querySelector("#co-bar-green").style.width = `${greenWidth}%`;
-      this.shadowRoot.querySelector("#co-bar-yellow").style.width = `${yellowWidth}%`;
-      this.shadowRoot.querySelector("#co-bar-yellow").style.left = `${greenWidth}%`;
-      this.shadowRoot.querySelector("#co-bar-red").style.width = `${redWidth}%`;
-      this.shadowRoot.querySelector("#co-bar-red").style.left = `${yellowWidth}%`;
+      console.log("CO Bar widths - Green:", greenWidth, "Yellow:", yellowWidth, "Red:", redWidth);
 
-      // Update value displays
-      this.shadowRoot.querySelector("#co-value-green").textContent = Math.round(coValue);
-      this.shadowRoot.querySelector("#co-value-yellow").textContent = Math.round(coYellowValue);
-      this.shadowRoot.querySelector("#co-value-red").textContent = Math.round(coRedValue);
+      // Update bar widths
+      const greenBar = this.shadowRoot.querySelector("#co-bar-green");
+      const yellowBar = this.shadowRoot.querySelector("#co-bar-yellow");
+      const redBar = this.shadowRoot.querySelector("#co-bar-red");
+
+      if (greenBar && yellowBar && redBar) {
+        greenBar.style.width = `${greenWidth}%`;
+        yellowBar.style.width = `${yellowWidth - greenWidth}%`;
+        yellowBar.style.left = `${greenWidth}%`;
+        redBar.style.width = `${redWidth - yellowWidth}%`;
+        redBar.style.left = `${yellowWidth}%`;
+
+        // Update value displays
+        this.shadowRoot.querySelector("#co-value-green").textContent = Math.round(coValue);
+        this.shadowRoot.querySelector("#co-value-yellow").textContent = Math.round(coYellowValue);
+        this.shadowRoot.querySelector("#co-value-red").textContent = Math.round(coRedValue);
+      }
     }
 
     // Update pellet percentage
@@ -907,13 +922,15 @@ class AduroStoveCard extends HTMLElement {
       ).textContent = `${percentage}%`;
 
       const pelletFill = this.shadowRoot.querySelector("#pellet-fill");
-      pelletFill.style.width = `${percentage}%`;
-      pelletFill.textContent = `${percentage}%`;
+      if (pelletFill) {
+        pelletFill.style.width = `${percentage}%`;
+        pelletFill.textContent = `${percentage}%`;
 
-      if (percentage <= 20) {
-        pelletFill.classList.add("low");
-      } else {
-        pelletFill.classList.remove("low");
+        if (percentage <= 20) {
+          pelletFill.classList.add("low");
+        } else {
+          pelletFill.classList.remove("low");
+        }
       }
     }
 
@@ -922,9 +939,11 @@ class AduroStoveCard extends HTMLElement {
       this._hass.states[this._getEntityId("refill_counter")];
     if (refillCounterEntity) {
       const count = parseFloat(refillCounterEntity.state) || 0;
-      this.shadowRoot.querySelector(
-        "#refill-counter"
-      ).textContent = `${count} ${this._t("kg_since_cleaning")}`;
+      const refillElement = this.shadowRoot.querySelector("#refill-counter");
+      if (refillElement) {
+        refillElement.textContent = `${count} ${this._t("kg_since_cleaning")}`;
+      }
+      console.log("Refill counter value:", count);
     }
 
     // Update power button
