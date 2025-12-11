@@ -193,6 +193,7 @@ class AduroStoveCard extends HTMLElement {
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
           padding: 16px;
+          padding-top: 12px;
           background: var(--card-background-color);
         }
         
@@ -587,6 +588,13 @@ class AduroStoveCard extends HTMLElement {
               <button class="adjuster-btn" id="temp-up">+</button>
             </div>
           </div>
+        </div>
+
+        <!-- Consumption Since Cleaning -->
+        <div class="refill-section">
+          <div class="refill-display" id="consumption-display">0 kg ${this._t(
+            "since_cleaning"
+          )}</div>
         </div>
         
         <!-- Action Buttons -->
