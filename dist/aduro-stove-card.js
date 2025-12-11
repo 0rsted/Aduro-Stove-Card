@@ -492,19 +492,6 @@ class AduroStoveCard extends HTMLElement {
           )}</div>
         </div>
         
-        <!-- Pellet Bar -->
-        <div class="pellet-section">
-          <div class="pellet-header">
-            <div class="pellet-label">${this._t("pellet_level")}</div>
-            <div class="refill-count" id="refill-counter-old">0 ${this._t(
-              "refills_since_cleaning"
-            )}</div>
-          </div>
-          <div class="pellet-bar">
-            <div class="pellet-fill" id="pellet-fill">0%</div>
-          </div>
-        </div>
-        
         <!-- Control Buttons -->
         <div class="control-buttons">
           <button class="control-btn toggle-btn" id="power-btn">
@@ -607,7 +594,7 @@ class AduroStoveCard extends HTMLElement {
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
       pellet_percentage: "sensor.pellet_percentage",
-      refill_counter: "sensor.refill_counter",
+      refill_counter: "sensor.consumption_since_cleaning",
       carbon_monoxide: "sensor.carbon_monoxide",
       carbon_monoxide_yellow: "sensor.carbon_monoxide_yellow",
       carbon_monoxide_red: "sensor.carbon_monoxide_red",
