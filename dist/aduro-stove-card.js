@@ -42,14 +42,6 @@ class AduroStoveCard extends HTMLElement {
       this._updateTitle();
     }
   }
-	
-  setConfig(config) {
-    if (!config.entity) {
-      throw new Error("Please define an entity");
-    }
-    this._config = config;
-    console.log("Card configured with entity:", config.entity);
-  }
 
   async _loadTranslations() {
     try {
@@ -122,8 +114,8 @@ class AduroStoveCard extends HTMLElement {
 		.header-section {
 		  padding: 20px;
 		  color: var(--primary-text-color);
-		  border-radius: 16px; /* schöne abgerundete Ecken */
-		  margin-top: 16px; /* Abstand nach oben zu anderen Karten */
+		  border-radius: 16px;
+		  margin-top: 16px;
 		}
         
         .header-top {
@@ -207,7 +199,7 @@ class AduroStoveCard extends HTMLElement {
 		.info-card {
 		  background: var(--secondary-background-color);
 		  border-radius: 12px;
-		  padding: 16px; /* etwas mehr für perfekte Balance */
+		  padding: 16px;
 		  text-align: center;
 		  border: 1px solid var(--divider-color);
 		  position: relative;
@@ -241,6 +233,47 @@ class AduroStoveCard extends HTMLElement {
 		  border: 1px solid var(--divider-color);
 		  display: inline-block;
 		}
+
+        /* Carbon Monoxide Bar */
+        .co-bar-container {
+          margin-top: 8px;
+          width: 100%;
+        }
+
+        .co-bar-wrapper {
+          position: relative;
+          height: 20px;
+          background: var(--divider-color);
+          border-radius: 10px;
+          overflow: hidden;
+        }
+
+        .co-bar {
+          position: absolute;
+          height: 100%;
+          transition: width 0.3s ease;
+        }
+
+        .co-bar.green {
+          background: #4caf50;
+          left: 0;
+        }
+
+        .co-bar.yellow {
+          background: #ffc107;
+        }
+
+        .co-bar.red {
+          background: #f44336;
+        }
+
+        .co-values {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 4px;
+          font-size: 10px;
+          color: var(--secondary-text-color);
+        }
         
         /* Pellet Section - Hidden */
         .pellet-section {
@@ -467,12 +500,24 @@ class AduroStoveCard extends HTMLElement {
           <div class="info-card">
             <div class="info-label">${this._t("info_label")}</div>
             <div class="info-value" id="smoke-temp">-</div>
+            <div class="co-bar-container">
+              <div class="co-bar-wrapper">
+                <div class="co-bar green" id="co-bar-green"></div>
+                <div class="co-bar yellow" id="co-bar-yellow"></div>
+                <div class="co-bar red" id="co-bar-red"></div>
+              </div>
+              <div class="co-values">
+                <span id="co-value-green">0</span>
+                <span id="co-value-yellow">-</span>
+                <span id="co-value-red">-</span>
+              </div>
+            </div>
           </div>
           <div class="info-card">
             <div class="info-label">${this._t("pellets_left")}</div>
             <div class="info-value" id="pellet-percent">-</div>
             <div class="refill-badge" id="refill-counter">0 ${this._t(
-              "refills"
+              "kg_since_cleaning"
             )}</div>
           </div>
         </div>
@@ -481,7 +526,7 @@ class AduroStoveCard extends HTMLElement {
         <div class="pellet-section">
           <div class="pellet-header">
             <div class="pellet-label">${this._t("pellet_level")}</div>
-            <div class="refill-count" id="refill-counter">0 ${this._t(
+            <div class="refill-count" id="refill-counter-old">0 ${this._t(
               "refills_since_cleaning"
             )}</div>
           </div>
@@ -593,6 +638,9 @@ class AduroStoveCard extends HTMLElement {
       smoke_temp: "sensor.smoke_temp",
       pellet_percentage: "sensor.pellet_percentage",
       refill_counter: "sensor.refill_counter",
+      carbon_monoxide: "sensor.carbon_monoxide",
+      carbon_monoxide_yellow: "sensor.carbon_monoxide_yellow",
+      carbon_monoxide_red: "sensor.carbon_monoxide_red",
     };
 
     const mapped = entityMap[suffix];
@@ -772,7 +820,7 @@ class AduroStoveCard extends HTMLElement {
     const matchingEntities = Object.keys(this._hass.states).filter((e) =>
       e.includes(baseName)
     );
-    console.log("All matching entities:", matchingEntities); // Show all
+    console.log("All matching entities:", matchingEntities);
 
     // Update status displays
     const statusMainEntity =
@@ -819,6 +867,36 @@ class AduroStoveCard extends HTMLElement {
       this.shadowRoot.querySelector("#smoke-temp").textContent = "N/A";
     }
 
+    // Update carbon monoxide bars
+    const coEntity = this._hass.states[this._getEntityId("carbon_monoxide")];
+    const coYellowEntity = this._hass.states[this._getEntityId("carbon_monoxide_yellow")];
+    const coRedEntity = this._hass.states[this._getEntityId("carbon_monoxide_red")];
+
+    if (coEntity && coYellowEntity && coRedEntity) {
+      const coValue = parseFloat(coEntity.state) || 200;
+      const coYellowValue = parseFloat(coYellowEntity.state) || 800;
+      const coRedValue = parseFloat(coRedEntity.state) || 900;
+
+      const maxValue = 1000;
+
+      // Calculate percentages for bar widths
+      const greenWidth = Math.min((coValue / maxValue) * 100, 100);
+      const yellowWidth = Math.min((coYellowValue / maxValue) * 100, 100);
+      const redWidth = Math.min((coRedValue / maxValue) * 100, 100);
+
+      // Update bar widths
+      this.shadowRoot.querySelector("#co-bar-green").style.width = `${greenWidth}%`;
+      this.shadowRoot.querySelector("#co-bar-yellow").style.width = `${yellowWidth}%`;
+      this.shadowRoot.querySelector("#co-bar-yellow").style.left = `${greenWidth}%`;
+      this.shadowRoot.querySelector("#co-bar-red").style.width = `${redWidth}%`;
+      this.shadowRoot.querySelector("#co-bar-red").style.left = `${yellowWidth}%`;
+
+      // Update value displays
+      this.shadowRoot.querySelector("#co-value-green").textContent = Math.round(coValue);
+      this.shadowRoot.querySelector("#co-value-yellow").textContent = Math.round(coYellowValue);
+      this.shadowRoot.querySelector("#co-value-red").textContent = Math.round(coRedValue);
+    }
+
     // Update pellet percentage
     const pelletEntity =
       this._hass.states[this._getEntityId("pellet_percentage")];
@@ -839,14 +917,14 @@ class AduroStoveCard extends HTMLElement {
       }
     }
 
-    // Update refill counter
+    // Update refill counter (now showing kg)
     const refillCounterEntity =
       this._hass.states[this._getEntityId("refill_counter")];
     if (refillCounterEntity) {
-      const count = parseInt(refillCounterEntity.state) || 0;
+      const count = parseFloat(refillCounterEntity.state) || 0;
       this.shadowRoot.querySelector(
         "#refill-counter"
-      ).textContent = `${count} ${this._t("refills")}`;
+      ).textContent = `${count} ${this._t("kg_since_cleaning")}`;
     }
 
     // Update power button
