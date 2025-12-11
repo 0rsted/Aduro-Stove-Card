@@ -274,6 +274,71 @@ class AduroStoveCard extends HTMLElement {
           z-index: 3;
         }
 
+        /* Refill Counter Section */
+        .refill-section {
+          padding: 0 16px 16px 16px;
+          text-align: center;
+        }
+
+        .refill-display {
+          background: var(--secondary-background-color);
+          border: 1px solid var(--divider-color);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          color: var(--primary-text-color);
+        }
+        
+        /* Pellet Section - Hidden */
+        .pellet-section {
+          display: none;
+        }
+        
+        .pellet-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+        
+        .pellet-label {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--primary-text-color);
+        }
+        
+        .refill-count {
+          font-size: 12px;
+          color: var(--secondary-text-color);
+          background: var(--secondary-background-color);
+          padding: 4px 12px;
+          border-radius: 12px;
+        }
+        
+        .pellet-bar {
+          height: 40px;
+          background: var(--divider-color);
+          border-radius: 20px;
+          overflow: hidden;
+          position: relative;
+        }
+        
+        .pellet-fill {
+          height: 100%;
+          background: var(--primary-color);
+          transition: width 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-primary-color);
+          font-weight: 700;
+          font-size: 16px;
+        }
+        
+        .pellet-fill.low {
+          background: var(--error-color);
+        }
+        
         /* Control Buttons Section */
         .control-buttons {
           display: grid;
@@ -381,26 +446,11 @@ class AduroStoveCard extends HTMLElement {
           font-weight: 700;
           color: var(--primary-text-color);
         }
-
-        /* Refill Counter Section */
-        .refill-section {
-          padding: 0 16px 16px 16px;
-          text-align: center;
-        }
-
-        .refill-display {
-          background: var(--secondary-background-color);
-          border: 1px solid var(--divider-color);
-          border-radius: 12px;
-          padding: 12px 16px;
-          font-size: 14px;
-          color: var(--primary-text-color);
-        }
         
         /* Action Buttons */
         .action-section {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: repeat(3, 1fr);
           gap: 12px;
           padding: 0 16px 16px 16px;
         }
@@ -478,18 +528,26 @@ class AduroStoveCard extends HTMLElement {
             <div class="co-marker yellow" id="co-marker-yellow"></div>
             <div class="co-marker red" id="co-marker-red"></div>
           </div>
-          <div class="co-values">
-            <span id="co-value-green">0</span>
-            <span id="co-value-yellow">-</span>
-            <span id="co-value-red">-</span>
-          </div>
         </div>
 
         <!-- Refill Counter -->
         <div class="refill-section">
-          <div class="refill-display" id="refill-counter">0 ${this._t(
-            "kg_since_cleaning"
+          <div class="refill-display" id="consumption-display">0 kg ${this._t(
+            "since_cleaning"
           )}</div>
+        </div>
+        
+        <!-- Pellet Bar -->
+        <div class="pellet-section">
+          <div class="pellet-header">
+            <div class="pellet-label">${this._t("pellet_level")}</div>
+            <div class="refill-count" id="refill-counter-old">0 ${this._t(
+              "refills_since_cleaning"
+            )}</div>
+          </div>
+          <div class="pellet-bar">
+            <div class="pellet-fill" id="pellet-fill">0%</div>
+          </div>
         </div>
         
         <!-- Control Buttons -->
@@ -536,10 +594,6 @@ class AduroStoveCard extends HTMLElement {
           <button class="action-btn" id="clean-btn">
             <ha-icon icon="mdi:broom"></ha-icon>
             <span>${this._t("stove_cleaned")}</span>
-          </button>
-          <button class="action-btn" id="refill-btn">
-            <ha-icon icon="mdi:reload"></ha-icon>
-            <span>${this._t("pellets_refilled")}</span>
           </button>
           <button class="control-btn toggle-btn" id="auto-resume-btn">
             <ha-icon icon="mdi:play-circle"></ha-icon>
@@ -594,7 +648,8 @@ class AduroStoveCard extends HTMLElement {
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
       pellet_percentage: "sensor.pellet_percentage",
-      refill_counter: "sensor.consumption_since_cleaning",
+      refill_counter: "sensor.refill_counter",
+      consumption_since_cleaning: "sensor.consumption_since_cleaning",
       carbon_monoxide: "sensor.carbon_monoxide",
       carbon_monoxide_yellow: "sensor.carbon_monoxide_yellow",
       carbon_monoxide_red: "sensor.carbon_monoxide_red",
@@ -757,12 +812,6 @@ class AduroStoveCard extends HTMLElement {
       const entityId = this._getEntityId("clean_stove");
       this._hass.callService("button", "press", { entity_id: entityId });
     });
-
-    const refillBtn = this.shadowRoot.querySelector("#refill-btn");
-    refillBtn.addEventListener("click", () => {
-      const entityId = this._getEntityId("refill_pellets");
-      this._hass.callService("button", "press", { entity_id: entityId });
-    });
   }
 
   _updateContent() {
@@ -838,7 +887,7 @@ class AduroStoveCard extends HTMLElement {
       const coYellowValue = parseFloat(coYellowEntity.state) || 800;
       const coRedValue = parseFloat(coRedEntity.state) || 900;
 
-      const maxValue = 1100;
+      const maxValue = 1000;
 
       // Calculate percentages for bar positions
       const greenWidth = Math.min((coValue / maxValue) * 100, 100);
@@ -856,7 +905,6 @@ class AduroStoveCard extends HTMLElement {
         fillBar.style.width = `${greenWidth}%`;
         yellowMarker.style.left = `${yellowPos}%`;
         redMarker.style.left = `${redPos}%`;
-
       }
     }
 
@@ -882,16 +930,16 @@ class AduroStoveCard extends HTMLElement {
       }
     }
 
-    // Update refill counter (now showing kg)
-    const refillCounterEntity =
-      this._hass.states[this._getEntityId("refill_counter")];
-    if (refillCounterEntity) {
-      const count = parseFloat(refillCounterEntity.state) || 0;
-      const refillElement = this.shadowRoot.querySelector("#refill-counter");
-      if (refillElement) {
-        refillElement.textContent = `${count} ${this._t("kg_since_cleaning")}`;
+    // Update consumption since cleaning
+    const consumptionEntity =
+      this._hass.states[this._getEntityId("consumption_since_cleaning")];
+    if (consumptionEntity) {
+      const consumption = parseFloat(consumptionEntity.state) || 0;
+      const consumptionElement = this.shadowRoot.querySelector("#consumption-display");
+      if (consumptionElement) {
+        consumptionElement.textContent = `${consumption} kg ${this._t("since_cleaning")}`;
       }
-      console.log("Refill counter value:", count);
+      console.log("Consumption since cleaning value:", consumption);
     }
 
     // Update power button
