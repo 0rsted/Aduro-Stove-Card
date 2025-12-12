@@ -11,7 +11,6 @@ class AduroStoveCard extends HTMLElement {
 
   set hass(hass) {
     if (!this._initialized) {
-      // store hass first so translation loader can use hass.language
       this._hass = hass;
       this._loadTranslations()
         .then(() => {
@@ -20,7 +19,6 @@ class AduroStoveCard extends HTMLElement {
         })
         .catch((e) => {
           console.error("Failed to load translations", e);
-          // fall back to initialize anyway
           this._initialize();
           this._updateContent();
         });
@@ -37,7 +35,6 @@ class AduroStoveCard extends HTMLElement {
     this._config = config;
     console.log("Card configured with entity:", config.entity);
     
-    // If already initialized, update the title
     if (this._initialized) {
       this._updateTitle();
     }
@@ -45,18 +42,15 @@ class AduroStoveCard extends HTMLElement {
 
   async _loadTranslations() {
     try {
-      // Determine language — prefer Home Assistant language if available
       const haLang =
         this._hass && this._hass.language ? this._hass.language : null;
       this._lang = (haLang || navigator.language || "en").split("-")[0];
 
-      // Always keep 'en' as fallback
       const tryLang = this._lang || "en";
 
       const enUrl = `${TRANSLATIONS_BASE}/en.json`;
       const localUrl = `${TRANSLATIONS_BASE}/${tryLang}.json`;
 
-      // Fetch English + local (might be same as en)
       const [enResp, localResp] = await Promise.all([
         fetch(enUrl)
           .then((r) => (r.ok ? r.json() : {}))
@@ -77,7 +71,6 @@ class AduroStoveCard extends HTMLElement {
   }
 
   _t(key) {
-    // safe accessor: first try current language, then english, else key
     return (
       (this._translations[this._lang] && this._translations[this._lang][key]) ||
       (this._translations.en && this._translations.en[key]) ||
@@ -86,7 +79,6 @@ class AduroStoveCard extends HTMLElement {
   }
 
   _getTitle() {
-    // Return custom title if provided, otherwise use translation
     return this._config.title || this._t("header_title");
   }
 
@@ -100,7 +92,6 @@ class AduroStoveCard extends HTMLElement {
   _initialize() {
     this._initialized = true;
 
-    // use shadow root so styles do not leak
     this.attachShadow({ mode: "open" });
 
     const card = document.createElement("ha-card");
@@ -193,7 +184,6 @@ class AduroStoveCard extends HTMLElement {
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
           padding: 16px;
-          padding-top: 12px;
           background: var(--card-background-color);
         }
         
@@ -204,7 +194,6 @@ class AduroStoveCard extends HTMLElement {
 		  text-align: center;
 		  border: 1px solid var(--divider-color);
 		  position: relative;
-
 		  display: flex;
 		  flex-direction: column;
 		  justify-content: center; 
@@ -237,14 +226,14 @@ class AduroStoveCard extends HTMLElement {
 
         /* Carbon Monoxide Bar Section */
         .co-section {
-          padding: 0 16px 16px 16px;
+          padding: 0 16px 8px 16px;
         }
 
         .co-bar-wrapper {
           position: relative;
-          height: 20px;
+          height: 12px;
           background: var(--divider-color);
-          border-radius: 10px;
+          border-radius: 6px;
           overflow: visible;
         }
 
@@ -253,7 +242,7 @@ class AduroStoveCard extends HTMLElement {
           height: 100%;
           background: #4caf50;
           left: 0;
-          border-radius: 10px;
+          border-radius: 6px;
           transition: width 0.3s ease;
         }
 
@@ -275,69 +264,29 @@ class AduroStoveCard extends HTMLElement {
           z-index: 3;
         }
 
-        /* Refill Counter Section */
-        .refill-section {
-          padding: 0 16px 16px 16px;
-          text-align: center;
-        }
-
-        .refill-display {
+        /* Consumption Card - Part of action grid */
+        .consumption-card {
           background: var(--secondary-background-color);
           border: 1px solid var(--divider-color);
           border-radius: 12px;
-          padding: 12px 16px;
-          font-size: 14px;
-          color: var(--primary-text-color);
-        }
-        
-        /* Pellet Section - Hidden */
-        .pellet-section {
-          display: none;
-        }
-        
-        .pellet-header {
+          padding: 16px;
+          text-align: center;
           display: flex;
-          justify-content: space-between;
+          flex-direction: column;
+          justify-content: center;
           align-items: center;
-          margin-bottom: 8px;
+          gap: 4px;
         }
         
-        .pellet-label {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--primary-text-color);
-        }
-        
-        .refill-count {
+        .consumption-label {
           font-size: 12px;
           color: var(--secondary-text-color);
-          background: var(--secondary-background-color);
-          padding: 4px 12px;
-          border-radius: 12px;
         }
         
-        .pellet-bar {
-          height: 40px;
-          background: var(--divider-color);
-          border-radius: 20px;
-          overflow: hidden;
-          position: relative;
-        }
-        
-        .pellet-fill {
-          height: 100%;
-          background: var(--primary-color);
-          transition: width 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--text-primary-color);
-          font-weight: 700;
+        .consumption-value {
           font-size: 16px;
-        }
-        
-        .pellet-fill.low {
-          background: var(--error-color);
+          font-weight: 600;
+          color: var(--primary-text-color);
         }
         
         /* Control Buttons Section */
@@ -448,10 +397,10 @@ class AduroStoveCard extends HTMLElement {
           color: var(--primary-text-color);
         }
         
-        /* Action Buttons */
+        /* Action Buttons - Now 2x2 grid */
         .action-section {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(2, 1fr);
           gap: 12px;
           padding: 0 16px 16px 16px;
         }
@@ -504,9 +453,7 @@ class AduroStoveCard extends HTMLElement {
           
           <div class="display-format">
             <div id="display-format">-</div>
-            <div class="display-updating hidden" id="updating-text">${this._t(
-              "updating_text"
-            )}</div>
+            <div class="display-updating hidden" id="updating-text">${this._t("updating_text")}</div>
           </div>
         </div>
         
@@ -528,26 +475,6 @@ class AduroStoveCard extends HTMLElement {
             <div class="co-bar-fill" id="co-bar-fill"></div>
             <div class="co-marker yellow" id="co-marker-yellow"></div>
             <div class="co-marker red" id="co-marker-red"></div>
-          </div>
-        </div>
-
-        <!-- Refill Counter -->
-        <div class="refill-section">
-          <div class="refill-display" id="consumption-display">0 kg ${this._t(
-            "since_cleaning"
-          )}</div>
-        </div>
-        
-        <!-- Pellet Bar -->
-        <div class="pellet-section">
-          <div class="pellet-header">
-            <div class="pellet-label">${this._t("pellet_level")}</div>
-            <div class="refill-count" id="refill-counter-old">0 ${this._t(
-              "refills_since_cleaning"
-            )}</div>
-          </div>
-          <div class="pellet-bar">
-            <div class="pellet-fill" id="pellet-fill">0%</div>
           </div>
         </div>
         
@@ -589,67 +516,52 @@ class AduroStoveCard extends HTMLElement {
             </div>
           </div>
         </div>
-
-        <!-- Consumption Since Cleaning -->
-        <div class="refill-section">
-          <div class="refill-display" id="consumption-display">0 kg ${this._t(
-            "since_cleaning"
-          )}</div>
-        </div>
         
-        <!-- Action Buttons -->
+        <!-- Action Buttons with Consumption -->
         <div class="action-section">
+          <div class="consumption-card">
+            <div class="consumption-label">${this._t("since_cleaning")}</div>
+            <div class="consumption-value" id="consumption-display">0 kg</div>
+          </div>
           <button class="action-btn" id="clean-btn">
             <ha-icon icon="mdi:broom"></ha-icon>
             <span>${this._t("stove_cleaned")}</span>
-          </button>
-          <button class="control-btn toggle-btn" id="auto-resume-btn">
-            <ha-icon icon="mdi:play-circle"></ha-icon>
-            <span>${this._t("auto_resume")}</span>
           </button>
           <button class="control-btn toggle-btn" id="auto-shutdown-btn">
             <ha-icon icon="mdi:power-settings"></ha-icon>
             <span>${this._t("auto_shutdown")}</span>
           </button>
+          <button class="control-btn toggle-btn" id="auto-resume-btn">
+            <ha-icon icon="mdi:play-circle"></ha-icon>
+            <span>${this._t("auto_resume")}</span>
+          </button>
         </div>
       </div>
     `;
 
-    // append to shadow root
     this.shadowRoot.appendChild(card);
-
-    // setup listeners (use shadowRoot selectors)
     this._setupEventListeners();
   }
 
   _getEntityId(suffix, domain = null) {
-    // Extract base name from entity (e.g., "sensor.aduro_h2" -> "aduro_h2")
     const baseEntity = this._config.entity;
     const parts = baseEntity.split(".");
     const baseName = parts.length > 1 ? parts[1] : parts[0];
 
-    // Map internal names to actual entity names
     const entityMap = {
-      // Switches
       power: "switch.power",
       auto_shutdown: "switch.auto_shutdown_at_low_pellets",
       auto_resume_wood: "switch.auto_resume_after_wood_mode",
-
-      // Numbers
       heatlevel: "number.heat_level",
       temperature: "number.target_temperature",
       pellet_capacity: "number.pellet_capacity",
       notification_level: "number.low_pellet_notification_level",
       shutdown_level: "number.auto_shutdown_pellet_level",
-
-      // Buttons
       toggle_mode: "button.toggle_mode",
       refill_pellets: "button.refill_pellets",
       clean_stove: "button.clean_stove",
       resume_after_wood: "button.resume_after_wood_mode",
       force_auger: "button.force_auger",
-
-      // Sensors
       status_main: "sensor.status_main",
       status_sub: "sensor.status_sub",
       change_in_progress: "sensor.change_in_progress",
@@ -669,7 +581,6 @@ class AduroStoveCard extends HTMLElement {
       return `${mappedDomain}.${baseName}_${mappedName}`;
     }
 
-    // Fallback for unmapped entities
     if (!domain) {
       domain = "sensor";
     }
@@ -677,44 +588,35 @@ class AduroStoveCard extends HTMLElement {
   }
 
   _setupEventListeners() {
-    // Power button
     const powerBtn = this.shadowRoot.querySelector("#power-btn");
     powerBtn.addEventListener("click", () => {
       const entityId = this._getEntityId("power");
       const powerEntity = this._hass.states[entityId];
       const isOn = powerEntity && powerEntity.state === "on";
-
-      const message = isOn
-        ? this._t("confirm_turn_off")
-        : this._t("confirm_turn_on");
-
+      const message = isOn ? this._t("confirm_turn_off") : this._t("confirm_turn_on");
       if (confirm(message)) {
         this._hass.callService("switch", "toggle", { entity_id: entityId });
       }
     });
 
-    // Toggle mode button
     const toggleBtn = this.shadowRoot.querySelector("#toggle-mode-btn");
     toggleBtn.addEventListener("click", () => {
       const entityId = this._getEntityId("toggle_mode");
       this._hass.callService("button", "press", { entity_id: entityId });
     });
 
-    // Auto resume button
     const autoResumeBtn = this.shadowRoot.querySelector("#auto-resume-btn");
     autoResumeBtn.addEventListener("click", () => {
       const entityId = this._getEntityId("auto_resume_wood");
       this._hass.callService("switch", "toggle", { entity_id: entityId });
     });
 
-    // Auto shutdown button
     const autoShutdownBtn = this.shadowRoot.querySelector("#auto-shutdown-btn");
     autoShutdownBtn.addEventListener("click", () => {
       const entityId = this._getEntityId("auto_shutdown");
       this._hass.callService("switch", "toggle", { entity_id: entityId });
     });
 
-    // Heat level controls
     const heatUpBtn = this.shadowRoot.querySelector("#heat-up");
     heatUpBtn.addEventListener("click", (e) => {
       const entityId = this._getEntityId("heatlevel");
@@ -745,32 +647,19 @@ class AduroStoveCard extends HTMLElement {
       setTimeout(() => e.currentTarget.blur(), 100);
     });
 
-    // Temperature controls
     const tempUpBtn = this.shadowRoot.querySelector("#temp-up");
     tempUpBtn.addEventListener("click", (e) => {
       const entityId = this._getEntityId("temperature");
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
-        // Use pending value if available, otherwise use actual value
-        const currentValue =
-          this._pendingTempValue !== null
-            ? this._pendingTempValue
-            : parseFloat(currentEntity.state);
+        const currentValue = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(currentEntity.state);
         const newValue = Math.min(currentValue + 1, 35);
-
-        // Update display immediately
         this._pendingTempValue = newValue;
-        this.shadowRoot.querySelector(
-          "#temp-value"
-        ).textContent = `${newValue}°C`;
-
-        // Send command
+        this.shadowRoot.querySelector("#temp-value").textContent = `${newValue}°C`;
         this._hass.callService("number", "set_value", {
           entity_id: entityId,
           value: newValue,
         });
-
-        // Clear pending value after 5 seconds
         clearTimeout(this._tempTimeout);
         this._tempTimeout = setTimeout(() => {
           this._pendingTempValue = null;
@@ -785,26 +674,14 @@ class AduroStoveCard extends HTMLElement {
       const entityId = this._getEntityId("temperature");
       const currentEntity = this._hass.states[entityId];
       if (currentEntity) {
-        // Use pending value if available, otherwise use actual value
-        const currentValue =
-          this._pendingTempValue !== null
-            ? this._pendingTempValue
-            : parseFloat(currentEntity.state);
+        const currentValue = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(currentEntity.state);
         const newValue = Math.max(currentValue - 1, 5);
-
-        // Update display immediately
         this._pendingTempValue = newValue;
-        this.shadowRoot.querySelector(
-          "#temp-value"
-        ).textContent = `${newValue}°C`;
-
-        // Send command
+        this.shadowRoot.querySelector("#temp-value").textContent = `${newValue}°C`;
         this._hass.callService("number", "set_value", {
           entity_id: entityId,
           value: newValue,
         });
-
-        // Clear pending value after 5 seconds
         clearTimeout(this._tempTimeout);
         this._tempTimeout = setTimeout(() => {
           this._pendingTempValue = null;
@@ -814,7 +691,6 @@ class AduroStoveCard extends HTMLElement {
       setTimeout(() => e.currentTarget.blur(), 100);
     });
 
-    // Action buttons
     const cleanBtn = this.shadowRoot.querySelector("#clean-btn");
     cleanBtn.addEventListener("click", () => {
       const entityId = this._getEntityId("clean_stove");
@@ -825,34 +701,25 @@ class AduroStoveCard extends HTMLElement {
   _updateContent() {
     if (!this._hass || !this._config) return;
 
-    // Debug: Log all available entities that match our pattern
     const baseEntity = this._config.entity;
     const parts = baseEntity.split(".");
     const baseName = parts.length > 1 ? parts[1] : parts[0];
 
     console.log("Looking for entities matching:", baseName);
-    const matchingEntities = Object.keys(this._hass.states).filter((e) =>
-      e.includes(baseName)
-    );
+    const matchingEntities = Object.keys(this._hass.states).filter((e) => e.includes(baseName));
     console.log("All matching entities:", matchingEntities);
 
-    // Update status displays
-    const statusMainEntity =
-      this._hass.states[this._getEntityId("status_main")];
+    const statusMainEntity = this._hass.states[this._getEntityId("status_main")];
     if (statusMainEntity) {
-      this.shadowRoot.querySelector("#status-main").textContent =
-        statusMainEntity.state;
+      this.shadowRoot.querySelector("#status-main").textContent = statusMainEntity.state;
     }
 
     const statusSubEntity = this._hass.states[this._getEntityId("status_sub")];
     if (statusSubEntity) {
-      this.shadowRoot.querySelector("#status-sub").textContent =
-        statusSubEntity.state;
+      this.shadowRoot.querySelector("#status-sub").textContent = statusSubEntity.state;
     }
 
-    // Update change in progress
-    const changeInProgressEntity =
-      this._hass.states[this._getEntityId("change_in_progress")];
+    const changeInProgressEntity = this._hass.states[this._getEntityId("change_in_progress")];
     const changeIcon = this.shadowRoot.querySelector("#change-icon");
     const updatingText = this.shadowRoot.querySelector("#updating-text");
 
@@ -864,15 +731,11 @@ class AduroStoveCard extends HTMLElement {
       updatingText.classList.add("hidden");
     }
 
-    // Update display format
-    const displayFormatEntity =
-      this._hass.states[this._getEntityId("display_format")];
+    const displayFormatEntity = this._hass.states[this._getEntityId("display_format")];
     if (displayFormatEntity) {
-      this.shadowRoot.querySelector("#display-format").textContent =
-        displayFormatEntity.state;
+      this.shadowRoot.querySelector("#display-format").textContent = displayFormatEntity.state;
     }
 
-    // Update smoke temperature
     const smokeTempEntity = this._hass.states[this._getEntityId("smoke_temp")];
     if (smokeTempEntity && smokeTempEntity.state !== "unavailable") {
       const temp = Math.round(parseFloat(smokeTempEntity.state));
@@ -881,7 +744,6 @@ class AduroStoveCard extends HTMLElement {
       this.shadowRoot.querySelector("#smoke-temp").textContent = "N/A";
     }
 
-    // Update carbon monoxide bars
     const coEntity = this._hass.states[this._getEntityId("carbon_monoxide")];
     const coYellowEntity = this._hass.states[this._getEntityId("carbon_monoxide_yellow")];
     const coRedEntity = this._hass.states[this._getEntityId("carbon_monoxide_red")];
@@ -894,17 +756,14 @@ class AduroStoveCard extends HTMLElement {
       const coValue = parseFloat(coEntity.state) || 200;
       const coYellowValue = parseFloat(coYellowEntity.state) || 800;
       const coRedValue = parseFloat(coRedEntity.state) || 900;
-
       const maxValue = 1000;
 
-      // Calculate percentages for bar positions
       const greenWidth = Math.min((coValue / maxValue) * 100, 100);
       const yellowPos = Math.min((coYellowValue / maxValue) * 100, 100);
       const redPos = Math.min((coRedValue / maxValue) * 100, 100);
 
       console.log("CO Bar - Green width:", greenWidth, "Yellow pos:", yellowPos, "Red pos:", redPos);
 
-      // Update bar fill and markers
       const fillBar = this.shadowRoot.querySelector("#co-bar-fill");
       const yellowMarker = this.shadowRoot.querySelector("#co-marker-yellow");
       const redMarker = this.shadowRoot.querySelector("#co-marker-red");
@@ -916,41 +775,22 @@ class AduroStoveCard extends HTMLElement {
       }
     }
 
-    // Update pellet percentage
-    const pelletEntity =
-      this._hass.states[this._getEntityId("pellet_percentage")];
+    const pelletEntity = this._hass.states[this._getEntityId("pellet_percentage")];
     if (pelletEntity) {
       const percentage = parseInt(pelletEntity.state) || 0;
-      this.shadowRoot.querySelector(
-        "#pellet-percent"
-      ).textContent = `${percentage}%`;
-
-      const pelletFill = this.shadowRoot.querySelector("#pellet-fill");
-      if (pelletFill) {
-        pelletFill.style.width = `${percentage}%`;
-        pelletFill.textContent = `${percentage}%`;
-
-        if (percentage <= 20) {
-          pelletFill.classList.add("low");
-        } else {
-          pelletFill.classList.remove("low");
-        }
-      }
+      this.shadowRoot.querySelector("#pellet-percent").textContent = `${percentage}%`;
     }
 
-    // Update consumption since cleaning
-    const consumptionEntity =
-      this._hass.states[this._getEntityId("consumption_since_cleaning")];
+    const consumptionEntity = this._hass.states[this._getEntityId("consumption_since_cleaning")];
     if (consumptionEntity) {
       const consumption = parseFloat(consumptionEntity.state) || 0;
       const consumptionElement = this.shadowRoot.querySelector("#consumption-display");
       if (consumptionElement) {
-        consumptionElement.textContent = `${consumption} kg ${this._t("since_cleaning")}`;
+        consumptionElement.textContent = `${consumption} kg`;
       }
       console.log("Consumption since cleaning value:", consumption);
     }
 
-    // Update power button
     const powerEntity = this._hass.states[this._getEntityId("power")];
     const powerBtn = this.shadowRoot.querySelector("#power-btn");
     if (powerEntity && powerEntity.state === "on") {
@@ -959,9 +799,7 @@ class AduroStoveCard extends HTMLElement {
       powerBtn.classList.remove("on");
     }
 
-    // Update auto resume button
-    const autoResumeEntity =
-      this._hass.states[this._getEntityId("auto_resume_wood")];
+    const autoResumeEntity = this._hass.states[this._getEntityId("auto_resume_wood")];
     const autoResumeBtn = this.shadowRoot.querySelector("#auto-resume-btn");
     if (autoResumeEntity && autoResumeEntity.state === "on") {
       autoResumeBtn.classList.add("on");
@@ -969,9 +807,7 @@ class AduroStoveCard extends HTMLElement {
       autoResumeBtn.classList.remove("on");
     }
 
-    // Update auto shutdown button
-    const autoShutdownEntity =
-      this._hass.states[this._getEntityId("auto_shutdown")];
+    const autoShutdownEntity = this._hass.states[this._getEntityId("auto_shutdown")];
     const autoShutdownBtn = this.shadowRoot.querySelector("#auto-shutdown-btn");
     if (autoShutdownEntity && autoShutdownEntity.state === "on") {
       autoShutdownBtn.classList.add("on");
@@ -979,21 +815,15 @@ class AduroStoveCard extends HTMLElement {
       autoShutdownBtn.classList.remove("on");
     }
 
-    // Update heat level
     const heatLevelEntity = this._hass.states[this._getEntityId("heatlevel")];
     if (heatLevelEntity) {
       const level = parseInt(heatLevelEntity.state);
       this.shadowRoot.querySelector("#heat-level-value").textContent = level;
     }
 
-    // Update temperature
     const tempEntity = this._hass.states[this._getEntityId("temperature")];
     if (tempEntity) {
-      // Use pending value if available, otherwise use actual value
-      const temp =
-        this._pendingTempValue !== null
-          ? this._pendingTempValue
-          : parseFloat(tempEntity.state);
+      const temp = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(tempEntity.state);
       this.shadowRoot.querySelector("#temp-value").textContent = `${temp}°C`;
     }
   }
