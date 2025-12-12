@@ -1,0 +1,21 @@
+{
+  "card_title": "Aduro kamin",
+  "header_title": "Aduro kamin",
+  "info_label": "Röktemperatur",
+  "pellets_left": "Pellets kvar",
+  "pellet_level": "Pellet nivå",
+  "since_cleaning": "sedan rengörning",
+  "updating_text": "Uppdaterar...",
+  "power": "Power",
+  "toggle_mode": "Växla läge",
+  "auto_resume": "Auto återstart",
+  "auto_shutdown": "Auto avstängning",
+  "stove_cleaned": "Kamin rengjord",
+  "pellets_refilled": "Pellets påfylld",
+  "heat_level": "Värme Nivå",
+  "target_temperature": "Måltemperatur",
+  "confirm_power_on": "Är du säker på att du vill slå PÅ kaminen?",
+  "confirm_power_off": "Är du säker på att du vill slå AV kaminen?",
+  "confirm_turn_on": "Är du säker på att du vill slå PÅ kaminen?",
+  "confirm_turn_off": "Är du säker på att du vill slå AV kaminen?"
+}
