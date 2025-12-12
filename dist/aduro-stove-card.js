@@ -520,7 +520,7 @@ class AduroStoveCard extends HTMLElement {
         <!-- Action Buttons with Consumption -->
         <div class="action-section">
           <div class="consumption-card">
-            <div class="consumption-label">${this._t("since_cleaning1")}</div>
+            <div class="consumption-label">${this._t("since_cleaning")}</div>
             <div class="consumption-value" id="consumption-display">0 kg</div>
           </div>
           <button class="action-btn" id="clean-btn">
