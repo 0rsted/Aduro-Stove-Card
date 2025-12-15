@@ -586,8 +586,8 @@ class AduroStoveCard extends HTMLElement {
       force_auger: "button.force_auger",
 
       // Sensors
-      status_main: "sensor.state",
-      status_sub: "sensor.substate",
+      state: "sensor.state",
+      substate: "sensor.substate",
       change_in_progress: "sensor.change_in_progress",
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
@@ -776,13 +776,13 @@ class AduroStoveCard extends HTMLElement {
 
     // Update status displays
     const statusMainEntity =
-      this._hass.states[this._getEntityId("status_main")];
+      this._hass.states[this._getEntityId("state")];
     if (statusMainEntity) {
       this.shadowRoot.querySelector("#status-main").textContent =
         statusMainEntity.state;
     }
 
-    const statusSubEntity = this._hass.states[this._getEntityId("status_sub")];
+    const statusSubEntity = this._hass.states[this._getEntityId("substate")];
     if (statusSubEntity) {
       this.shadowRoot.querySelector("#status-sub").textContent =
         statusSubEntity.state;
