@@ -586,8 +586,8 @@ class AduroStoveCard extends HTMLElement {
       force_auger: "button.force_auger",
 
       // Sensors
-      status_main: "sensor.status_main",
-      status_sub: "sensor.status_sub",
+      status_main: "sensor.state",
+      status_sub: "sensor.substate",
       change_in_progress: "sensor.change_in_progress",
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
