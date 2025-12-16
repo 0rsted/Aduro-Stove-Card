@@ -103,7 +103,7 @@ class AduroStoveCard extends HTMLElement {
         
         /* Header Section */
 		.header-section {
-		  padding: 20px;
+		  padding: 20px 20px 8px 20px;
 		  color: var(--primary-text-color);
 		  border-radius: 16px;
 		  margin-top: 16px;
@@ -162,7 +162,7 @@ class AduroStoveCard extends HTMLElement {
 		  border: 1px solid var(--divider-color);
 		  padding: 12px 16px;
 		  border-radius: 12px;
-		  /* margin-bottom: 12px; */
+		  margin-bottom: 12px;
 		  color: var(--primary-text-color);
 		}
 		
@@ -183,7 +183,7 @@ class AduroStoveCard extends HTMLElement {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
-          padding: 16px;
+          padding: 0 16px 8px 16px;
           background: var(--card-background-color);
         }
         
@@ -568,7 +568,7 @@ class AduroStoveCard extends HTMLElement {
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
       pellet_percentage: "sensor.pellet_percentage",
-      refill_counter: "sensor.consumption_since_cleaning",
+      refill_counter: "sensor.refill_counter",
       consumption_since_cleaning: "sensor.consumption_since_cleaning",
       carbon_monoxide: "sensor.carbon_monoxide",
       carbon_monoxide_yellow: "sensor.carbon_monoxide_yellow",
@@ -808,36 +808,4 @@ class AduroStoveCard extends HTMLElement {
     }
 
     const autoShutdownEntity = this._hass.states[this._getEntityId("auto_shutdown")];
-    const autoShutdownBtn = this.shadowRoot.querySelector("#auto-shutdown-btn");
-    if (autoShutdownEntity && autoShutdownEntity.state === "on") {
-      autoShutdownBtn.classList.add("on");
-    } else {
-      autoShutdownBtn.classList.remove("on");
-    }
-
-    const heatLevelEntity = this._hass.states[this._getEntityId("heatlevel")];
-    if (heatLevelEntity) {
-      const level = parseInt(heatLevelEntity.state);
-      this.shadowRoot.querySelector("#heat-level-value").textContent = level;
-    }
-
-    const tempEntity = this._hass.states[this._getEntityId("temperature")];
-    if (tempEntity) {
-      const temp = this._pendingTempValue !== null ? this._pendingTempValue : parseFloat(tempEntity.state);
-      this.shadowRoot.querySelector("#temp-value").textContent = `${temp}°C`;
-    }
-  }
-
-  getCardSize() {
-    return 8;
-  }
-}
-
-customElements.define("aduro-stove-card", AduroStoveCard);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "aduro-stove-card",
-  name: "Aduro Stove Card",
-  description: "A custom card for controlling Aduro stoves",
-});
+    const autoShutdownBtn =
