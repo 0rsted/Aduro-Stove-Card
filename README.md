@@ -63,7 +63,7 @@ Add the card to your Lovelace dashboard:
 
 ```yaml
 type: custom:aduro-stove-card
-entity: sensor.aduro_h2 (your stove)
+entity: sensor.aduro_h2 [Your stove]
 title: My Custom Title
 ```
 
