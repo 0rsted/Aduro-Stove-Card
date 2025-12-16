@@ -103,7 +103,7 @@ class AduroStoveCard extends HTMLElement {
         
         /* Header Section */
 		.header-section {
-		  padding: 20px 20px 8px 20px;
+		  padding: 20px;
 		  color: var(--primary-text-color);
 		  border-radius: 16px;
 		  margin-top: 16px;
@@ -183,7 +183,7 @@ class AduroStoveCard extends HTMLElement {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
-          padding: 0 16px 8px 16px;
+          padding: 16px;
           background: var(--card-background-color);
         }
         
@@ -568,7 +568,7 @@ class AduroStoveCard extends HTMLElement {
       display_format: "sensor.display_format",
       smoke_temp: "sensor.smoke_temp",
       pellet_percentage: "sensor.pellet_percentage",
-      refill_counter: "sensor.consumption_since_cleaning",
+      refill_counter: "sensor.refill_counter",
       consumption_since_cleaning: "sensor.consumption_since_cleaning",
       carbon_monoxide: "sensor.carbon_monoxide",
       carbon_monoxide_yellow: "sensor.carbon_monoxide_yellow",
