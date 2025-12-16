@@ -6,19 +6,30 @@
 
 A custom Lovelace card for controlling Aduro Hybrid Stoves in Home Assistant.
 
-![Aduro Stove Card](Aduro_stove_card.png)
+<img width="506" height="737" alt="image" src="https://github.com/user-attachments/assets/d8289aa5-602b-40c2-9234-6a8a593d6933" />
+
 
 ## Features
 
 - **Real-time Status Display** - Shows current stove state and operation mode
 - **Temperature & Heat Level Control** - Easy +/- buttons for quick adjustments
-- **Pellet Monitoring** - Visual pellet level indicator with refill counter
+- **Pellet Monitoring** - Visual pellet level indicator and a consumption since cleaning indicator
+- **CO level** - CO level indicator with the yellow and red thresholds
 - **Power Control** - Start/stop the stove with a single tap
 - **Mode Toggle** - Switch between Heat Level and Temperature modes
 - **Auto-Resume & Auto-Shutdown** - Configure automatic behavior for wood mode and low pellet levels
 - **Maintenance Tracking** - Quick access to pellet refill and stove cleaning buttons
 - **Change Indicator** - Visual feedback when stove settings are updating
 
+## Languages
+
+- English
+- French
+- German
+- Swedish
+- Easy to add more languages
+
+  
 ## Installation
 
 ### HACS (Recommended)
@@ -52,7 +63,7 @@ Add the card to your Lovelace dashboard:
 
 ```yaml
 type: custom:aduro-stove-card
-entity: sensor.your_aduro_stove
+entity: sensor.aduro_h2 (your stove)
 title: My Custom Title
 ```
 
@@ -67,7 +78,7 @@ title: My Custom Title
 This card requires the [Aduro Hybrid Stove integration](https://github.com/NewImproved/Aduro) to be installed and configured in Home Assistant.
 
 The card expects the following entities to be available:
-- Sensors: `status_main`, `status_sub`, `display_format`, `smoke_temperature`, `pellet_percentage`, `refill_counter`, `change_in_progress`
+- Sensors: `state`, `substate`, `display_format`, `smoke_temperature`, `pellet_percentage`, `consumption_since_cleaning`, `change_in_progress`, `carbon_monoxide`, `carbon_monoxide_yellow`, `carbon_monoxide_red`
 - Switches: `power`, `auto_shutdown_at_low_pellets`, `auto_resume_after_wood_mode`
 - Numbers: `heat_level`, `target_temperature`
 - Buttons: `toggle_mode`, `refill_pellets`, `clean_stove`
@@ -93,8 +104,8 @@ The card expects the following entities to be available:
 ### Maintenance
 - **Pellets Refilled**: Press after refilling pellets to reset the consumption counter
 - **Stove Cleaned**: Press after cleaning to reset the refill counter
-- **Auto Resume**: Enable to automatically resume pellet operation after wood mode
-- **Auto Shutdown**: Enable to automatically shut down when pellet level is low
+- **Auto Resume**: Enable to automatically resume pellet operation after wood mode if the stove is in heat level mode
+- **Auto Shutdown**: Enable to automatically shut down when pellet level is below you preset in the integration
 
 ## Customization
 
