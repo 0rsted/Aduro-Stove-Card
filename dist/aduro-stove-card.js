@@ -263,31 +263,6 @@ class AduroStoveCard extends HTMLElement {
           background: #f44336;
           z-index: 3;
         }
-
-        /* Consumption Card - Part of action grid */
-        .consumption-card {
-          background: var(--secondary-background-color);
-          border: 1px solid var(--divider-color);
-          border-radius: 12px;
-          padding: 16px;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 4px;
-        }
-        
-        .consumption-label {
-          font-size: 12px;
-          color: var(--secondary-text-color);
-        }
-        
-        .consumption-value {
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--primary-text-color);
-        }
         
         /* Control Buttons Section */
         .control-buttons {
@@ -397,7 +372,7 @@ class AduroStoveCard extends HTMLElement {
           color: var(--primary-text-color);
         }
         
-        /* Action Buttons - Now 2x2 grid */
+        /* Action Buttons - 2x2 grid */
         .action-section {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
@@ -414,17 +389,44 @@ class AduroStoveCard extends HTMLElement {
           cursor: pointer;
           transition: all 0.2s;
           display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          background: var(--secondary-background-color);
+          color: var(--primary-text-color);
+        }
+        
+        .action-btn-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          width: 100%;
+        }
+        
+        .action-btn-main {
+          display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          background: var(--secondary-background-color);
-          color: var(--primary-text-color);
+        }
+        
+        .action-btn-subtitle {
+          font-size: 11px;
+          font-weight: 400;
+          color: var(--secondary-text-color);
+          opacity: 0.8;
         }
         
         .action-btn:hover {
           background: var(--primary-color);
           color: var(--text-primary-color);
           border-color: var(--primary-color);
+        }
+        
+        .action-btn:hover .action-btn-subtitle {
+          color: var(--text-primary-color);
         }
         
         .action-btn:active {
@@ -517,15 +519,20 @@ class AduroStoveCard extends HTMLElement {
           </div>
         </div>
         
-        <!-- Action Buttons with Consumption -->
+        <!-- Action Buttons - 2x2 grid -->
         <div class="action-section">
-          <div class="consumption-card">
-            <div class="consumption-label">${this._t("since_cleaning")}</div>
-            <div class="consumption-value" id="consumption-display">0 kg</div>
-          </div>
           <button class="action-btn" id="clean-btn">
-            <ha-icon icon="mdi:broom"></ha-icon>
-            <span>${this._t("stove_cleaned")}</span>
+            <div class="action-btn-content">
+              <div class="action-btn-main">
+                <ha-icon icon="mdi:broom"></ha-icon>
+                <span>${this._t("stove_cleaned")}</span>
+              </div>
+              <div class="action-btn-subtitle" id="consumption-subtitle">0 kg</div>
+            </div>
+          </button>
+          <button class="action-btn" id="refill-btn">
+            <ha-icon icon="mdi:firebase"></ha-icon>
+            <span>${this._t("pellets_refilled")}</span>
           </button>
           <button class="control-btn toggle-btn" id="auto-shutdown-btn">
             <ha-icon icon="mdi:power-settings"></ha-icon>
@@ -536,7 +543,6 @@ class AduroStoveCard extends HTMLElement {
             <span>${this._t("auto_resume")}</span>
           </button>
         </div>
-      </div>
     `;
 
     this.shadowRoot.appendChild(card);
@@ -696,6 +702,12 @@ class AduroStoveCard extends HTMLElement {
       const entityId = this._getEntityId("clean_stove");
       this._hass.callService("button", "press", { entity_id: entityId });
     });
+
+    const refillBtn = this.shadowRoot.querySelector("#refill-btn");
+    refillBtn.addEventListener("click", () => {
+      const entityId = this._getEntityId("refill_pellets");
+      this._hass.callService("button", "press", { entity_id: entityId });
+    });
   }
 
   _updateContent() {
@@ -784,9 +796,9 @@ class AduroStoveCard extends HTMLElement {
     const consumptionEntity = this._hass.states[this._getEntityId("consumption_since_cleaning")];
     if (consumptionEntity) {
       const consumption = parseFloat(consumptionEntity.state) || 0;
-      const consumptionElement = this.shadowRoot.querySelector("#consumption-display");
-      if (consumptionElement) {
-        consumptionElement.textContent = `${consumption} kg`;
+      const consumptionSubtitle = this.shadowRoot.querySelector("#consumption-subtitle");
+      if (consumptionSubtitle) {
+        consumptionSubtitle.textContent = `${this._t("since_cleaning")} ${consumption} kg`;
       }
       console.log("Consumption since cleaning value:", consumption);
     }
