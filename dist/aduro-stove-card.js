@@ -531,7 +531,7 @@ class AduroStoveCard extends HTMLElement {
             </div>
           </button>
           <button class="action-btn" id="refill-btn">
-            <ha-icon icon="mdi:firebase"></ha-icon>
+            <ha-icon icon="mdi:reload"></ha-icon>
             <span>${this._t("pellets_refilled")}</span>
           </button>
           <button class="control-btn toggle-btn" id="auto-shutdown-btn">
