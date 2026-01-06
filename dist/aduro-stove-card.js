@@ -521,7 +521,7 @@ class AduroStoveCard extends HTMLElement {
         
         <!-- Action Buttons - 2x2 grid -->
         <div class="action-section">
-          <button class="action-btn" id="clean-btn">
+          <button class="control-btn" id="clean-btn">
             <div class="action-btn-content">
               <div class="action-btn-main">
                 <ha-icon icon="mdi:broom"></ha-icon>
@@ -530,7 +530,7 @@ class AduroStoveCard extends HTMLElement {
               <div class="action-btn-subtitle" id="consumption-subtitle">0 kg</div>
             </div>
           </button>
-          <button class="action-btn" id="refill-btn">
+          <button class="control-btn" id="refill-btn">
             <ha-icon icon="mdi:reload"></ha-icon>
             <span>${this._t("pellets_refilled")}</span>
           </button>
