@@ -25,5 +25,6 @@
   "confirm_refill_pellets": "Are you sure you want to mark the pellets as refilled?",
   "confirm_reset_alarm": "Are you sure you want to reset the alarm?",
   "confirm_force_fan_on": "Are you sure you want to force the fan ON?",
-  "confirm_force_fan_off": "Are you sure you want to turn OFF the forced fan?"
+  "confirm_force_fan_off": "Are you sure you want to turn OFF the forced fan?",
+  "depletion_time_label": "Depletion time:"
 }
