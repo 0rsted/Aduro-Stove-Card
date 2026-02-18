@@ -473,10 +473,9 @@ class AduroStoveCard extends HTMLElement {
         </div>
 
         <!-- Pellet Depletion Tile -->
-        <div style="padding: 8px 16px;">
-          <div class="display-format" style="margin-bottom: 0;">
-            <div id="pellet-depletion">-</div>
-          </div>
+        <div class="display-format" style="margin: 0 16px 16px 16px;">
+          <div style="font-size: 12px; color: var(--secondary-text-color); margin-bottom: 4px;">${this._t("depletion_time_label")}</div>
+          <div id="pellet-depletion">-</div>
         </div>
 
         <!-- Carbon Monoxide Bar -->
