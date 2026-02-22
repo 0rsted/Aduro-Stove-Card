@@ -501,9 +501,8 @@ class AduroStoveCard extends HTMLElement {
         <!-- Heat Level & Temperature Adjusters -->
         <div class="adjusters-section">
           <div class="adjuster-card">
-            <div class="adjuster-header">
+            <div class="adjuster-header" style="justify-content: center;">
               <div class="adjuster-label">${this._t("heat_level")}</div>
-              <div class="adjuster-value" id="heat-level-display">-</div>
             </div>
             <div class="adjuster-controls">
               <button class="adjuster-btn" id="heat-down">−</button>
@@ -514,7 +513,7 @@ class AduroStoveCard extends HTMLElement {
 
           <!-- Temperature Adjuster -->
           <div class="adjuster-card">
-            <div class="adjuster-header">
+            <div class="adjuster-header" style="justify-content: center;">
               <div class="adjuster-label">${this._t("target_temperature")}</div>
             </div>
             <div class="adjuster-controls">
