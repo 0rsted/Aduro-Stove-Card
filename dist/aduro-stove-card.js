@@ -103,7 +103,7 @@ class AduroStoveCard extends HTMLElement {
 
         /* Header Section */
         .header-section {
-          padding: 20px;
+          padding: 20px 20px 0 20px;
           color: var(--primary-text-color);
           border-radius: 16px;
           margin-top: 16px;
