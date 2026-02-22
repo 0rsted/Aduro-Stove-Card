@@ -183,7 +183,7 @@ class AduroStoveCard extends HTMLElement {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px;
-          padding: 16px;
+          padding: 12px 16px 16px 16px;
           background: var(--card-background-color);
         }
 
@@ -473,9 +473,8 @@ class AduroStoveCard extends HTMLElement {
         </div>
 
         <!-- Pellet Depletion Tile -->
-        <div class="display-format" style="margin: 0 16px 16px 16px;">
-          <div style="font-size: 12px; color: var(--secondary-text-color); margin-bottom: 4px;">${this._t("depletion_time_label")}</div>
-          <div id="pellet-depletion">-</div>
+        <div class="display-format" style="margin: 0 16px 12px 16px;">
+          <span style="font-size: 12px; color: var(--secondary-text-color); margin-right: 6px;">${this._t("depletion_time_label")}</span><span id="pellet-depletion">-</span>
         </div>
 
         <!-- Carbon Monoxide Bar -->
